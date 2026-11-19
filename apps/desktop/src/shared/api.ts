@@ -42,18 +42,6 @@ export interface AppSettings {
   openEditorAfterRecording: boolean;
 }
 
-export type LicenseState = 'unlicensed' | 'active' | 'expired' | 'invalid';
-
-export interface LicenseStatus {
-  state: LicenseState;
-  email?: string;
-  plan?: 'monthly' | 'yearly';
-  key?: string;
-  /** Token expiry (ms since epoch); refreshed automatically while the subscription is active. */
-  expiresAt?: number;
-  message?: string;
-}
-
 export interface ExportHandle {
   id: string;
   path: string;
@@ -136,13 +124,6 @@ export interface ZoomPaneApi {
     onChange(listener: (settings: AppSettings) => void): Unsubscribe;
   };
 
-  license: {
-    status(): Promise<LicenseStatus>;
-    activate(key: string): Promise<LicenseStatus>;
-    deactivate(): Promise<LicenseStatus>;
-    onChange(listener: (status: LicenseStatus) => void): Unsubscribe;
-  };
-
   app: {
     openExternal(url: string): Promise<void>;
     openLauncher(): Promise<void>;
@@ -200,10 +181,6 @@ export const IPC = {
   settingsGet: 'settings:get',
   settingsUpdate: 'settings:update',
   settingsChanged: 'settings:changed',
-  licenseStatus: 'license:status',
-  licenseActivate: 'license:activate',
-  licenseDeactivate: 'license:deactivate',
-  licenseChanged: 'license:changed',
   openExternal: 'app:open-external',
   openLauncher: 'app:open-launcher',
   openSettings: 'app:open-settings',
@@ -217,3 +194,6 @@ export const IPC = {
 } as const;
 
 export const MEDIA_SCHEME = 'zp-media';
+
+/** Source code, releases and issue tracker. */
+export const REPO_URL = 'https://github.com/jayspyroyale/ZoomPane';

@@ -13,8 +13,6 @@ export default defineConfig({
   main: {
     define,
     resolve: { alias: { '@shared': shared } },
-    // Bundle the workspace license package instead of requiring it at runtime.
-    build: { externalizeDeps: { exclude: ['@zoompane/license'] } },
   },
   preload: {
     define,

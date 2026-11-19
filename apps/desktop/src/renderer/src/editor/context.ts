@@ -10,7 +10,6 @@ export interface EditorEnv {
   player: Player;
   /** Scene builder for the preview resolution (keeps its caches between edits). */
   builder: SceneBuilder;
-  watermark: boolean;
 }
 
 export const EditorContext = createContext<EditorEnv | null>(null);

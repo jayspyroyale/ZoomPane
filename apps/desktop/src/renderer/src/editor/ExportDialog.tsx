@@ -39,7 +39,6 @@ export function ExportDialog() {
         loaded: env.loaded,
         project,
         settings,
-        watermark: env.watermark,
         handle,
         signal: abort.current.signal,
         onProgress: (progress) => setPhase({ kind: 'running', progress }),
@@ -134,14 +133,6 @@ export function ExportDialog() {
                   ]}
                 />
               </Field>
-            )}
-            {env.watermark && (
-              <p className="rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent">
-                Exports include a small ZoomPane watermark until you activate a license.{' '}
-                <button type="button" className="underline" onClick={() => api.app.openSettings()}>
-                  Activate
-                </button>
-              </p>
             )}
             {phase.kind === 'error' && <p className="rounded-lg bg-danger/15 px-3 py-2 text-xs text-danger">{phase.message}</p>}
 

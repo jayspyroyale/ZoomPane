@@ -4,10 +4,7 @@ node_modules/
 out/
 dist/
 release/
-.next/
-.vercel/
 *.tsbuildinfo
-next-env.d.ts
 # .NET
 native/**/bin/
 native/**/obj/

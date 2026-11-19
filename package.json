@@ -3,20 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "description": "Beautiful screen recordings for Windows: auto zoom, smooth cursor, backgrounds and one-click export.",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/*"
   ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "dev:desktop": "npm run dev -w @zoompane/desktop",
-    "dev:web": "npm run dev -w @zoompane/web",
     "build:capture": "dotnet publish native/capture -c Release -o apps/desktop/resources/bin",
     "build:desktop": "npm run build -w @zoompane/desktop",
-    "build:web": "npm run build -w @zoompane/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   }

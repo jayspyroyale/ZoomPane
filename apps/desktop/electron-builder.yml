@@ -1,6 +1,6 @@
 appId: app.zoompane.desktop
 productName: ZoomPane
-copyright: Copyright © 2026 ZoomPane
+copyright: Copyright © 2026 ZoomPane contributors
 directories:
   buildResources: build
   output: release/${version}
@@ -13,30 +13,33 @@ extraResources:
   - from: resources/bin
     to: bin
     filter: ['zoompane-capture.exe']
-protocols:
-  - name: ZoomPane
-    schemes: [zoompane]
-fileAssociations:
-  - ext: zoompane
-    name: ZoomPane Project
-    description: ZoomPane recording project
-    role: Editor
+  # Window and tray icons loaded at runtime (see src/main/paths.ts).
+  - from: build/icon.png
+    to: icon.png
+  - from: build/tray.png
+    to: tray.png
 win:
   target:
     - target: nsis
       arch: [x64]
+    - target: portable
+      arch: [x64]
   icon: build/icon.ico
   executableName: ZoomPane
-  # Code signing: set CSC_LINK / CSC_KEY_PASSWORD (or Azure Trusted Signing) in CI.
 nsis:
-  oneClick: false
+  # Double-click to install: per-user, no admin prompt, launches when done.
+  oneClick: true
   perMachine: false
-  allowToChangeInstallationDirectory: true
+  runAfterFinish: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: ZoomPane
   artifactName: ZoomPane-Setup-${version}.${ext}
   deleteAppDataOnUninstall: false
+portable:
+  artifactName: ZoomPane-Portable-${version}.${ext}
 publish:
   provider: github
+  owner: jayspyroyale
+  repo: ZoomPane
   releaseType: release

@@ -1,34 +1,32 @@
 import clsx from 'clsx';
-import { BadgeCheck, Keyboard, Settings2, Sparkles } from 'lucide-react';
+import { Bug, Code2, Info, Keyboard, Settings2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import type { AppSettings, LicenseStatus, Shortcuts, UpdateStatus } from '@shared/api';
+import { REPO_URL, type AppSettings, type Shortcuts, type UpdateStatus } from '@shared/api';
 import { api } from '@/lib/api';
-import { useLicense, useSettings } from '@/lib/hooks';
-import { Button, Field, Spinner, Toggle } from '@/ui/controls';
+import { useSettings } from '@/lib/hooks';
+import { Button, Field, Toggle } from '@/ui/controls';
+import { Logo } from '@/ui/Logo';
 import { TitleBar } from '@/ui/TitleBar';
 
-const WEBSITE = 'https://zoompane.app';
-
-type Tab = 'license' | 'general' | 'shortcuts';
+type Tab = 'general' | 'shortcuts' | 'about';
 
 export default function Settings() {
-  const [tab, setTab] = useState<Tab>('license');
+  const [tab, setTab] = useState<Tab>('general');
   const [settings, update] = useSettings();
-  const license = useLicense();
 
   return (
     <div className="flex h-full flex-col">
       <TitleBar title="Settings" maximizable={false} />
       <div className="flex min-h-0 flex-1">
         <nav className="w-44 shrink-0 space-y-0.5 border-r border-line bg-panel p-2">
-          <NavItem icon={<BadgeCheck size={15} />} label="License" active={tab === 'license'} onClick={() => setTab('license')} />
           <NavItem icon={<Settings2 size={15} />} label="General" active={tab === 'general'} onClick={() => setTab('general')} />
           <NavItem icon={<Keyboard size={15} />} label="Shortcuts" active={tab === 'shortcuts'} onClick={() => setTab('shortcuts')} />
+          <NavItem icon={<Info size={15} />} label="About" active={tab === 'about'} onClick={() => setTab('about')} />
         </nav>
         <main className="min-w-0 flex-1 overflow-y-auto p-6">
-          {tab === 'license' && license && <LicensePanel status={license} />}
           {tab === 'general' && settings && <GeneralPanel settings={settings} update={update} />}
           {tab === 'shortcuts' && settings && <ShortcutsPanel shortcuts={settings.shortcuts} onChange={(shortcuts) => update({ shortcuts })} />}
+          {tab === 'about' && <AboutPanel />}
         </main>
       </div>
     </div>
@@ -44,67 +42,28 @@ function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode; labe
   );
 }
 
-function LicensePanel({ status }: { status: LicenseStatus }) {
-  const [key, setKey] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-
-  const activate = async () => {
-    setBusy(true);
-    const result = await api.license.activate(key);
-    setBusy(false);
-    setMessage(result.state === 'active' ? null : (result.message ?? 'Activation failed'));
-  };
-
-  if (status.state === 'active') {
-    return (
-      <div className="space-y-5">
-        <div className="flex items-start gap-3 rounded-xl bg-accent-soft p-4 ring-1 ring-accent/30">
-          <Sparkles className="mt-0.5 text-accent" size={20} />
-          <div>
-            <div className="text-[15px] font-semibold">ZoomPane Pro is active</div>
-            <div className="mt-0.5 text-muted">
-              {status.email} · {status.plan === 'yearly' ? 'Yearly' : 'Monthly'} plan
-            </div>
-            <div className="mt-1 font-mono text-xs text-muted">{status.key}</div>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => api.app.openExternal(`${WEBSITE}/account`)}>Manage subscription</Button>
-          <Button variant="ghost" onClick={() => void api.license.deactivate()}>
-            Deactivate this PC
-          </Button>
-        </div>
-        <p className="text-xs text-muted">One license works on up to 3 PCs. Deactivate a PC to move your license to another one.</p>
-      </div>
-    );
-  }
-
+function AboutPanel() {
   return (
     <div className="space-y-5">
-      <div>
-        <h2 className="font-display text-lg font-semibold">Unlock ZoomPane Pro</h2>
-        <p className="mt-1 text-muted">Export without a watermark, in up to 4K at 60 fps. Every feature is included in every plan.</p>
-      </div>
-      <Field label="License key" hint="You'll find it on the purchase confirmation page and on your Stripe receipts.">
-        <div className="flex gap-2">
-          <input
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && void activate()}
-            placeholder="ZP-XXXX-XXXX-XXXX-XXXX"
-            className="h-9 flex-1 rounded-lg bg-raised px-3 font-mono uppercase ring-1 ring-line outline-none select-text focus:ring-accent"
-          />
-          <Button variant="primary" disabled={busy || key.trim().length < 10} onClick={() => void activate()}>
-            {busy ? <Spinner /> : 'Activate'}
-          </Button>
+      <div className="flex items-center gap-3">
+        <Logo className="h-10 w-10" />
+        <div>
+          <div className="font-display text-lg font-semibold">ZoomPane {api.version}</div>
+          <div className="text-muted">Free and open-source screen recorder for Windows.</div>
         </div>
-      </Field>
-      {(message ?? status.message) && <p className="text-xs text-danger">{message ?? status.message}</p>}
-      <div className="flex gap-2">
-        <Button onClick={() => api.app.openExternal(`${WEBSITE}/pricing`)}>Buy ZoomPane Pro</Button>
-        <Button variant="ghost" onClick={() => api.app.openExternal(`${WEBSITE}/account`)}>
-          Lost your key?
+      </div>
+      <p className="text-muted">
+        ZoomPane is released under the MIT License. Every feature is free, with no watermark, account or upload. Recordings stay on this PC.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => api.app.openExternal(REPO_URL)}>
+          <Code2 size={15} /> Source code
+        </Button>
+        <Button variant="ghost" onClick={() => api.app.openExternal(`${REPO_URL}/issues/new/choose`)}>
+          <Bug size={15} /> Report a problem
+        </Button>
+        <Button variant="ghost" onClick={() => api.app.openExternal(`${REPO_URL}/releases`)}>
+          Release notes
         </Button>
       </div>
     </div>

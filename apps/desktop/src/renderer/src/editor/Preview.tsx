@@ -56,7 +56,7 @@ export function Preview({ canvasRef }: { canvasRef: RefObject<HTMLCanvasElement 
   const resolution = clamp(Math.round(displayShort / RESOLUTION_STEP) * RESOLUTION_STEP, 360, 1080);
 
   const scene = useMemo(
-    () => env.builder.build(viewProject, { resolution, fps: 60, watermark: env.watermark, backgroundImage }),
+    () => env.builder.build(viewProject, { resolution, fps: 60, backgroundImage }),
     [env, viewProject, resolution, backgroundImage],
   );
 

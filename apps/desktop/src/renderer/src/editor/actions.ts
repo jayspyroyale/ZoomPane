@@ -113,7 +113,6 @@ export async function renderStill(env: EditorEnv): Promise<string> {
   const scene = new SceneBuilder(env.loaded.data).build(project, {
     resolution: settings.export.resolution,
     fps: settings.export.fps,
-    watermark: env.watermark,
     backgroundImage: await backgroundImageFor(project),
   });
   const canvas = new OffscreenCanvas(scene.output.w, scene.output.h);

@@ -3,7 +3,6 @@ import { IPC, type AppSettings } from '@shared/api';
 import type { Project } from '@shared/project';
 import type { Bounds, Microphone, RecordingOptions } from '@shared/recording';
 import { exporter } from './exporter';
-import { license } from './license';
 import { media } from './media';
 import { projects } from './projects';
 import { recorder } from './recorder';
@@ -94,10 +93,6 @@ export function registerIpc(): void {
 
   handle(IPC.settingsGet, () => settings().get());
   handle(IPC.settingsUpdate, (_, patch: Partial<AppSettings>) => settings().update(patch));
-
-  handle(IPC.licenseStatus, () => license().current);
-  handle(IPC.licenseActivate, (_, key: string) => license().activate(key));
-  handle(IPC.licenseDeactivate, () => license().deactivate());
 
   handle(IPC.openExternal, (_, url: string) => {
     if (/^https:\/\//.test(url)) return shell.openExternal(url);

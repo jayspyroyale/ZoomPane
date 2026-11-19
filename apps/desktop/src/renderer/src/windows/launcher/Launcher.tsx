@@ -1,7 +1,6 @@
-import clsx from 'clsx';
 import { Settings2 } from 'lucide-react';
 import { useState } from 'react';
-import { useLicense, useSettings } from '@/lib/hooks';
+import { useSettings } from '@/lib/hooks';
 import { api } from '@/lib/api';
 import { Segmented } from '@/ui/controls';
 import { TitleBar } from '@/ui/TitleBar';
@@ -11,7 +10,6 @@ import { RecordView } from './RecordView';
 export default function Launcher() {
   const [tab, setTab] = useState<'record' | 'projects'>('record');
   const [settings, updateSettings] = useSettings();
-  const license = useLicense();
 
   return (
     <div className="flex h-full flex-col">
@@ -34,14 +32,6 @@ export default function Launcher() {
         {settings && tab === 'record' && <RecordView settings={settings} updateSettings={updateSettings} />}
         {tab === 'projects' && <ProjectsView />}
       </div>
-      {license && license.state !== 'active' && (
-        <div className={clsx('flex items-center justify-between border-t border-line bg-panel px-4 py-2.5 text-xs text-muted')}>
-          <span>Free version: exports include a small watermark.</span>
-          <button type="button" className="font-medium text-accent hover:underline" onClick={() => api.app.openSettings()}>
-            Activate Pro
-          </button>
-        </div>
-      )}
     </div>
   );
 }

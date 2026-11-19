@@ -3,7 +3,6 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { IPC } from '@shared/api';
 import { registerIpc } from './ipc';
-import { license } from './license';
 import log from './log';
 import { media } from './media';
 import { recorder } from './recorder';
@@ -14,20 +13,13 @@ import { appTray } from './tray';
 import { updater } from './updater';
 import { windows } from './windows';
 
-const PROTOCOL = 'zoompane';
-
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   media.registerScheme();
   app.setAppUserModelId('app.zoompane.desktop');
-  if (process.defaultApp && process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [process.argv[1]]);
-  } else {
-    app.setAsDefaultProtocolClient(PROTOCOL);
-  }
 
-  app.on('second-instance', (_, argv) => void handleArgs(argv));
+  app.on('second-instance', (_, argv) => handleArgs(argv));
   app.whenReady().then(startup).catch((error) => {
     log.error('startup failed', error);
     dialog.showErrorBox('ZoomPane could not start', String(error));
@@ -35,26 +27,14 @@ if (!app.requestSingleInstanceLock()) {
   });
 }
 
-/** Handles `zoompane://activate?key=…` links and `.zoompane` folders passed on the command line. */
-async function handleArgs(argv: string[]): Promise<boolean> {
-  const link = argv.find((a) => a.startsWith(`${PROTOCOL}://`));
-  if (link) {
-    const url = new URL(link);
-    if (url.hostname === 'activate') {
-      const key = url.searchParams.get('key') ?? '';
-      const status = await license().activate(key);
-      windows.showSettings();
-      if (status.state !== 'active') dialog.showErrorBox('Activation failed', status.message ?? 'Unknown error');
-      return true;
-    }
-  }
+/** Opens a `.zoompane` folder passed on the command line, or the launcher. */
+function handleArgs(argv: string[]): void {
   const projectDir = argv.slice(1).find((a) => a.toLowerCase().endsWith('.zoompane') && existsSync(join(a, 'recording.json')));
   if (projectDir) {
     windows.openEditor(projectDir);
-    return true;
+    return;
   }
   windows.showLauncher();
-  return false;
 }
 
 async function startup(): Promise<void> {
@@ -67,13 +47,11 @@ async function startup(): Promise<void> {
     registerShortcuts(value.shortcuts);
     windows.broadcast(IPC.settingsChanged, value);
   });
-  license().on('change', (status) => windows.broadcast(IPC.licenseChanged, status));
-  license().startBackgroundRefresh();
 
   recorder.on('state', (state) => appTray.update(state));
 
   updater.init();
-  await handleArgs(process.argv);
+  handleArgs(process.argv);
 }
 
 // Having a listener stops Electron quitting when the last window closes: ZoomPane stays

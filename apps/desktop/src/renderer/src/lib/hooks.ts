@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { AppSettings, LicenseStatus } from '@shared/api';
+import type { AppSettings } from '@shared/api';
 import type { RecorderState } from '@shared/recording';
 import { api } from './api';
 
@@ -14,15 +14,6 @@ export function useSettings(): [AppSettings | null, (patch: Partial<AppSettings>
     void api.settings.update(patch);
   };
   return [settings, update];
-}
-
-export function useLicense(): LicenseStatus | null {
-  const [status, setStatus] = useState<LicenseStatus | null>(null);
-  useEffect(() => {
-    void api.license.status().then(setStatus);
-    return api.license.onChange(setStatus);
-  }, []);
-  return status;
 }
 
 export function useRecorderState(): RecorderState {

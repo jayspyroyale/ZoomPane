@@ -1,8 +1,7 @@
 import { Command, Redo2, Undo2, Upload } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SceneBuilder } from '@/engine/render';
 import { api } from '@/lib/api';
-import { useLicense } from '@/lib/hooks';
 import { Button, IconButton, Spinner } from '@/ui/controls';
 import { TitleBar } from '@/ui/TitleBar';
 import { CommandMenu, ShortcutsSheet } from './CommandDialogs';
@@ -10,7 +9,7 @@ import { handleKeyDown } from './commands';
 import { EditorContext, type EditorEnv } from './context';
 import { ExportDialog } from './ExportDialog';
 import { Inspector } from './inspector/Inspector';
-import { loadRecording, type LoadedRecording } from './loadRecording';
+import { loadRecording } from './loadRecording';
 import { Player } from './player';
 import { Preview } from './Preview';
 import { useEditor } from './store';
@@ -19,15 +18,9 @@ import { TimelinePanel } from './Timeline';
 const AUTOSAVE_MS = 800;
 const THUMBNAIL_WIDTH = 480;
 
-interface Session {
-  loaded: LoadedRecording;
-  player: Player;
-  builder: SceneBuilder;
-}
-
 export default function Editor({ query }: { query: URLSearchParams }) {
   const dir = query.get('dir') ?? '';
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<EditorEnv | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,17 +66,14 @@ export default function Editor({ query }: { query: URLSearchParams }) {
       </div>
     );
   }
-  return <EditorShell session={session} dir={dir} />;
+  return <EditorShell env={session} dir={dir} />;
 }
 
-function EditorShell({ session, dir }: { session: Session; dir: string }) {
-  const license = useLicense();
-  const watermark = license?.state !== 'active';
-  const env = useMemo<EditorEnv>(() => ({ ...session, watermark }), [session, watermark]);
+function EditorShell({ env, dir }: { env: EditorEnv; dir: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const project = useEditor((s) => s.project!);
   const { dialog, setDialog, undo, redo, past, future, dirty } = useEditor();
-  const { player } = session;
+  const { player } = env;
 
   // Player → store: playhead and play state.
   useEffect(

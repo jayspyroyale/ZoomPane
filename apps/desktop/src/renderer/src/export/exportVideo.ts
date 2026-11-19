@@ -32,7 +32,6 @@ export interface ExportJob {
   loaded: LoadedRecording;
   project: Project;
   settings: ExportSettings;
-  watermark: boolean;
   handle: ExportHandle;
   signal: AbortSignal;
   onProgress: (fraction: number) => void;
@@ -64,7 +63,7 @@ async function frameReader(url: string, offsetMs: number, times: number[]): Prom
  */
 async function renderFrames(job: ExportJob, resolution: number, fps: number, draw: (canvas: OffscreenCanvas, index: number) => Promise<void>, progressShare: number): Promise<void> {
   const { loaded, project } = job;
-  const scene = new SceneBuilder(loaded.data).build(project, { resolution, fps, watermark: job.watermark, backgroundImage: await backgroundImageFor(project) });
+  const scene = new SceneBuilder(loaded.data).build(project, { resolution, fps, backgroundImage: await backgroundImageFor(project) });
   const timeline = new Timeline(project.clips);
   const frameCount = Math.max(1, Math.round((timeline.duration / 1000) * fps));
   const sourceTimes = Array.from({ length: frameCount }, (_, i) => timeline.toSource((i * 1000) / fps).source);

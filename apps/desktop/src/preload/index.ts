@@ -73,13 +73,6 @@ const api: ZoomPaneApi = {
     onChange: (listener) => subscribe(IPC.settingsChanged, listener),
   },
 
-  license: {
-    status: () => invoke(IPC.licenseStatus),
-    activate: (key) => invoke(IPC.licenseActivate, key),
-    deactivate: () => invoke(IPC.licenseDeactivate),
-    onChange: (listener) => subscribe(IPC.licenseChanged, listener),
-  },
-
   app: {
     openExternal: (url) => invoke(IPC.openExternal, url),
     openLauncher: () => invoke(IPC.openLauncher),

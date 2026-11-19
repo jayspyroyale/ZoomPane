@@ -46,7 +46,6 @@ export interface SceneOptions {
   /** Shorter side of the output in px. */
   resolution: number;
   fps: number;
-  watermark: boolean;
   backgroundImage: Image | null;
 }
 
@@ -182,7 +181,6 @@ export function drawFrame(ctx: Ctx, scene: Scene, t: number, media: FrameMedia):
   if (media.camera && layout.cameraOpacity > 0.001) drawCamera(ctx, scene, layout, media.camera, unit);
   drawKeystrokes(ctx, scene, t, unit);
   drawCaption(ctx, scene, t, unit);
-  if (scene.options.watermark) drawWatermark(ctx, output, unit);
 }
 
 function sceneLayout(scene: Scene, t: number): LayoutState {
@@ -510,23 +508,5 @@ function drawCaption(ctx: Ctx, scene: Scene, t: number, unit: number): void {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   lines.forEach((l, i) => ctx.fillText(l, scene.output.w / 2, y + 14 * s + lineH * (i + 0.5)));
-  ctx.restore();
-}
-
-function drawWatermark(ctx: Ctx, output: Size, unit: number): void {
-  const text = 'Made with ZoomPane';
-  ctx.save();
-  ctx.font = `600 ${Math.round(22 * unit)}px "Segoe UI", system-ui, sans-serif`;
-  const w = ctx.measureText(text).width + 28 * unit;
-  const h = 40 * unit;
-  const x = output.w - w - 24 * unit;
-  const y = output.h - h - 24 * unit;
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, h / 2);
-  ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, x + 14 * unit, y + h / 2);
   ctx.restore();
 }
