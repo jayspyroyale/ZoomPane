@@ -74,8 +74,10 @@ internal sealed class ScreenRecorder : IAsyncDisposable
 
     private static void TrySetBorderless(GraphicsCaptureSession session)
     {
+        // Windows 10 (and early Windows 11): the yellow border cannot be disabled.
+        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 20348)) return;
         try { session.IsBorderRequired = false; }
-        catch { /* Windows 10: the yellow border cannot be disabled. */ }
+        catch { /* Border control not permitted for this app. */ }
     }
 
     private unsafe ID3D11Texture2D CreateBlackTexture()

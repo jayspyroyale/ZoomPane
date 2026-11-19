@@ -1,7 +1,7 @@
 {
   "name": "@zoompane/desktop",
   "productName": "ZoomPane",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Beautiful screen recordings for Windows.",
   "author": "ZoomPane",
