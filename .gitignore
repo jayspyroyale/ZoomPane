@@ -22,3 +22,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Built capture sidecar (npm run build:capture)
+apps/desktop/resources/bin/

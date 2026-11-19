@@ -13,10 +13,6 @@ extraResources:
   - from: resources/bin
     to: bin
     filter: ['zoompane-capture.exe']
-  - from: resources/wallpapers
-    to: wallpapers
-asarUnpack:
-  - resources/**
 protocols:
   - name: ZoomPane
     schemes: [zoompane]

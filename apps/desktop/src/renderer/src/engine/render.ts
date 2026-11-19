@@ -152,14 +152,7 @@ export function drawFrame(ctx: Ctx, scene: Scene, t: number, media: FrameMedia):
   ctx.filter = 'none';
   ctx.drawImage(scene.background, 0, 0);
 
-  const layout = layoutAt(t, project.layouts, {
-    output,
-    sourceAspect: scene.cropPx.w / scene.cropPx.h,
-    padding: style.padding,
-    camera: style.camera,
-    hasCamera: scene.data.cameraAspect !== null,
-    cameraAspect: scene.data.cameraAspect ?? 1,
-  });
+  const layout = sceneLayout(scene, t);
 
   const screenAlpha = 1 - layout.cameraCover;
   if (screenAlpha > 0.001) {
@@ -190,6 +183,33 @@ export function drawFrame(ctx: Ctx, scene: Scene, t: number, media: FrameMedia):
   drawKeystrokes(ctx, scene, t, unit);
   drawCaption(ctx, scene, t, unit);
   if (scene.options.watermark) drawWatermark(ctx, output, unit);
+}
+
+function sceneLayout(scene: Scene, t: number): LayoutState {
+  const style = scene.project.style;
+  return layoutAt(t, scene.project.layouts, {
+    output: scene.output,
+    sourceAspect: scene.cropPx.w / scene.cropPx.h,
+    padding: style.padding,
+    camera: style.camera,
+    hasCamera: scene.data.cameraAspect !== null,
+    cameraAspect: scene.data.cameraAspect ?? 1,
+  });
+}
+
+function innerRect(rect: Rect, insetPx: number, aspect: number): Rect {
+  return insetPx > 0 ? fitRect({ x: insetPx, y: insetPx, w: rect.w - 2 * insetPx, h: rect.h - 2 * insetPx }, aspect) : { x: 0, y: 0, w: rect.w, h: rect.h };
+}
+
+/**
+ * Where the (unzoomed) recording appears on the output at source time `t`, in output px.
+ * The editor uses it to place mask and zoom-focus handles over the preview.
+ */
+export function recordingRectAt(scene: Scene, t: number): Rect {
+  const screen = sceneLayout(scene, t).screen;
+  const unit = Math.min(scene.output.w, scene.output.h) / 1080;
+  const inner = innerRect(screen, scene.project.style.inset * unit, scene.cropPx.w / scene.cropPx.h);
+  return { x: screen.x + inner.x, y: screen.y + inner.y, w: inner.w, h: inner.h };
 }
 
 function cameraMotionPx(a: CameraSample, b: CameraSample, rect: Rect): number {
@@ -249,7 +269,7 @@ function drawScreenLayer(
   const crop = scene.cropPx;
   const radius = style.radius * unit;
   const insetPx = style.inset * unit;
-  const inner = insetPx > 0 ? fitRect({ x: insetPx, y: insetPx, w: rect.w - 2 * insetPx, h: rect.h - 2 * insetPx }, crop.w / crop.h) : { x: 0, y: 0, w: rect.w, h: rect.h };
+  const inner = innerRect(rect, insetPx, crop.w / crop.h);
 
   ctx.save();
   applyCamera(ctx, rect, cam);
